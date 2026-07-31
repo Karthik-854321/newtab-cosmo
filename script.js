@@ -3,7 +3,7 @@ function updateClock() {
   const timeStr = now.toLocaleTimeString();
   const clockEl = document.getElementById("clock");
   if (clockEl) clockEl.textContent = timeStr;
-
+ 
   const dateStr = now.toLocaleDateString(undefined, {
     weekday: "short",
     year: "numeric",
