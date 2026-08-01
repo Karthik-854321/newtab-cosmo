@@ -1,25 +1,25 @@
-// Clock and Date Updater
-function updateClock() {
+// ===== Clock, Date, Greeting, Focus =====
+
+function updateClockAndDate() {
   const now = new Date();
-  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
   const clockEl = document.getElementById("clock");
-  if (clockEl) clockEl.textContent = timeStr;
- 
-  const dateStr = now.toLocaleDateString(undefined, {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  if (clockEl) {
+    clockEl.textContent = now.toLocaleTimeString();
+  }
+
   const dateEl = document.getElementById("date");
-  if (dateEl) dateEl.textContent = dateStr;
+  if (dateEl) {
+    dateEl.textContent = now.toLocaleDateString(undefined, {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
 }
 
-updateClock();
-setInterval(updateClock, 1000);
-
-// Personalized Greeting Controller
-function updateGreeting() {
+function updateGreetingAndFocus() {
   const now = new Date();
   const hour = now.getHours();
   let greeting;
@@ -31,36 +31,23 @@ function updateGreeting() {
 
   const greetingEl = document.getElementById("greeting");
   if (greetingEl) greetingEl.textContent = greeting;
-}
 
-// Fetch NASA APOD (Astronomy Picture of the Day) for real cosmic data & quotes
-async function fetchNasaStardustData() {
   const focusEl = document.getElementById("focus");
-  const bgOverlay = document.getElementById("bg-overlay");
-
-  try {
-    // Using NASA's public DEMO_KEY. (Can be swapped with a custom key later)
-    const response = await fetch("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY");
-    const data = await response.json();
-
-    if (data && data.url) {
-      // Set NASA background image dynamically
-      if (bgOverlay && data.media_type === "image") {
-        bgOverlay.style.backgroundImage = `url('${data.url}')`;
-      }
-
-      // Display NASA title/explanation as custom stardust motivation for Stardance
-      if (focusEl) {
-        focusEl.innerHTML = `<strong>NASA APOD:</strong> "${data.title}" — <em>Time to code and ship stardust for Stardance!</em>`;
-      }
-    }
-  } catch (error) {
-    // Fallback fallback quote if offline or API limit hits
-    if (focusEl) {
-      focusEl.textContent = "“Time to code and earn stardust for Stardance. Keep building!”";
-    }
+  if (focusEl) {
+    focusEl.textContent = "Time to build CosmoTab and earn stardust.";
   }
 }
+
+function setupClockGreeting() {
+  updateClockAndDate();
+  updateGreetingAndFocus();
+  // update time every second, greeting every minute
+  setInterval(updateClockAndDate, 1000);
+  setInterval(updateGreetingAndFocus, 60000);
+}
+
+// ===== Quick Links with "+" and Modal =====
+
 const LINKS_STORAGE_KEY = "cosmotab-links";
 
 function loadLinks() {
@@ -82,13 +69,13 @@ function renderLinks(links) {
   container.innerHTML = "";
 
   links.forEach((link, index) => {
-    const a = document.createElement("a");
-    a.href = link.url;
-    a.target = "_blank";
-    a.className = "link-chip";
+    const chip = document.createElement("a");
+    chip.href = link.url;
+    chip.target = "_blank";
+    chip.className = "link-chip";
 
-    const span = document.createElement("span");
-    span.textContent = link.name;
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = link.name;
 
     const editBtn = document.createElement("button");
     editBtn.type = "button";
@@ -110,10 +97,10 @@ function renderLinks(links) {
       renderLinks(links);
     });
 
-    a.appendChild(span);
-    a.appendChild(editBtn);
-    a.appendChild(deleteBtn);
-    container.appendChild(a);
+    chip.appendChild(nameSpan);
+    chip.appendChild(editBtn);
+    chip.appendChild(deleteBtn);
+    container.appendChild(chip);
   });
 }
 
@@ -153,7 +140,6 @@ function closeLinkModal() {
 function setupLinks() {
   let links = loadLinks();
   if (links.length === 0) {
-    // Default useful links
     links = [
       { name: "Stardance", url: "https://stardance.hackclub.com" },
       { name: "GitHub", url: "https://github.com" },
@@ -182,7 +168,9 @@ function setupLinks() {
   });
 
   modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeLinkModal();
+    if (e.target === modal) {
+      closeLinkModal();
+    }
   });
 
   form.addEventListener("submit", (e) => {
@@ -202,15 +190,9 @@ function setupLinks() {
     closeLinkModal();
   });
 }
-// Initialize Sequence
-updateGreeting();
-fetchNasaStardustData();
 
-// Refresh clock/greetings every minute, NASA fetch once per session load
-setInterval(updateGreeting, 60000);
-setupTodo();
-setupLinks();
-updateClockAndGreeting(); // or whatever you named it
+// ===== Sticky Notes Todo with localStorage =====
+
 const TODO_STORAGE_KEY = "cosmotab-todos";
 
 function loadTodos() {
@@ -326,3 +308,11 @@ function setupTodo() {
     input.value = "";
   });
 }
+
+// ===== Init on page load =====
+
+document.addEventListener("DOMContentLoaded", () => {
+  setupClockGreeting();
+  setupLinks();
+  setupTodo();
+});
