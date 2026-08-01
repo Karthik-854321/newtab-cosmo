@@ -1,4 +1,100 @@
-// ===== Clock, Date, Greeting, Focus =====
+// ===== Storage keys =====
+
+const USER_PROFILE_KEY = "cosmotab-user-profile";
+const LINKS_STORAGE_KEY = "cosmotab-links";
+const TODO_STORAGE_KEY = "cosmotab-todos";
+
+// ===== Helpers =====
+
+function loadJSON(key) {
+  const raw = localStorage.getItem(key);
+  try {
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveJSON(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+// ===== User profile and avatar =====
+
+function loadUserProfile() {
+  return loadJSON(USER_PROFILE_KEY);
+}
+
+function saveUserProfile(profile) {
+  saveJSON(USER_PROFILE_KEY, profile);
+}
+
+function applyAvatar(profile) {
+  const avatarEl = document.getElementById("avatar");
+  if (!avatarEl || !profile) return;
+
+  avatarEl.className = "avatar"; // reset
+  avatarEl.classList.remove("avatar-hidden");
+
+  // Map simple avatar choice to sprite class
+  let spriteClass = "dino-idle";
+  switch (profile.avatar) {
+    case "dino":
+      spriteClass = "dino-walk";
+      break;
+    case "astronaut-m":
+      spriteClass = "astronaut-m-idle";
+      break;
+    case "astronaut-f":
+      spriteClass = "astronaut-f-idle";
+      break;
+    case "rocket":
+      spriteClass = "rocket-fly";
+      break;
+    case "ufo":
+      spriteClass = "ufo-float";
+      break;
+    default:
+      spriteClass = "dino-idle";
+  }
+
+  avatarEl.classList.add(spriteClass);
+}
+
+function maybeShowUserSetup() {
+  const profile = loadUserProfile();
+  const modal = document.getElementById("user-setup-modal");
+  const form = document.getElementById("user-setup-form");
+  const nameInput = document.getElementById("user-name-input");
+  const avatarSelect = document.getElementById("user-avatar-select");
+
+  if (!modal || !form || !nameInput || !avatarSelect) return;
+
+  if (!profile) {
+    // First time: show modal
+    modal.classList.remove("hidden");
+    nameInput.focus();
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      const avatar = avatarSelect.value;
+
+      if (!name || !avatar) return;
+
+      const newProfile = { name, avatar };
+      saveUserProfile(newProfile);
+      modal.classList.add("hidden");
+      updateGreetingAndFocus();
+      applyAvatar(newProfile);
+    });
+  } else {
+    // Already have profile
+    applyAvatar(profile);
+  }
+}
+
+// ===== Clock, date, greeting =====
 
 function updateClockAndDate() {
   const now = new Date();
@@ -22,15 +118,20 @@ function updateClockAndDate() {
 function updateGreetingAndFocus() {
   const now = new Date();
   const hour = now.getHours();
-  let greeting;
+  let baseGreeting;
 
-  if (hour < 5) greeting = "Good night, Karthik";
-  else if (hour < 12) greeting = "Good morning, Karthik";
-  else if (hour < 18) greeting = "Good afternoon, Karthik";
-  else greeting = "Good evening, Karthik";
+  if (hour < 5) baseGreeting = "Good night";
+  else if (hour < 12) baseGreeting = "Good morning";
+  else if (hour < 18) baseGreeting = "Good afternoon";
+  else baseGreeting = "Good evening";
+
+  const profile = loadUserProfile();
+  const name = profile?.name || "traveler";
 
   const greetingEl = document.getElementById("greeting");
-  if (greetingEl) greetingEl.textContent = greeting;
+  if (greetingEl) {
+    greetingEl.textContent = `${baseGreeting}, ${name}`;
+  }
 
   const focusEl = document.getElementById("focus");
   if (focusEl) {
@@ -41,26 +142,18 @@ function updateGreetingAndFocus() {
 function setupClockGreeting() {
   updateClockAndDate();
   updateGreetingAndFocus();
-  // update time every second, greeting every minute
   setInterval(updateClockAndDate, 1000);
   setInterval(updateGreetingAndFocus, 60000);
 }
 
-// ===== Quick Links with "+" and Modal =====
-
-const LINKS_STORAGE_KEY = "cosmotab-links";
+// ===== Quick links with "+" and modal =====
 
 function loadLinks() {
-  const raw = localStorage.getItem(LINKS_STORAGE_KEY);
-  try {
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return loadJSON(LINKS_STORAGE_KEY) || [];
 }
 
 function saveLinks(links) {
-  localStorage.setItem(LINKS_STORAGE_KEY, JSON.stringify(links));
+  saveJSON(LINKS_STORAGE_KEY, links);
 }
 
 function renderLinks(links) {
@@ -106,10 +199,12 @@ function renderLinks(links) {
 
 let currentLinkMode = "add";
 let currentLinkIndex = null;
+let linksCache = [];
 
 function openLinkModal(mode, links, index = null) {
   currentLinkMode = mode;
   currentLinkIndex = index;
+  linksCache = links;
 
   const modal = document.getElementById("link-modal");
   const titleEl = document.getElementById("link-modal-title");
@@ -179,6 +274,8 @@ function setupLinks() {
     const url = urlInput.value.trim();
     if (!name || !url) return;
 
+    const links = linksCache.length ? linksCache : loadLinks();
+
     if (currentLinkMode === "edit" && currentLinkIndex != null) {
       links[currentLinkIndex] = { name, url };
     } else {
@@ -191,21 +288,14 @@ function setupLinks() {
   });
 }
 
-// ===== Sticky Notes Todo with localStorage =====
-
-const TODO_STORAGE_KEY = "cosmotab-todos";
+// ===== Sticky notes =====
 
 function loadTodos() {
-  const raw = localStorage.getItem(TODO_STORAGE_KEY);
-  try {
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return loadJSON(TODO_STORAGE_KEY) || [];
 }
 
 function saveTodos(todos) {
-  localStorage.setItem(TODO_STORAGE_KEY, JSON.stringify(todos));
+  saveJSON(TODO_STORAGE_KEY, todos);
 }
 
 function renderTodos(todos) {
@@ -231,20 +321,20 @@ function renderTodos(todos) {
     const btns = document.createElement("div");
     btns.className = "sticky-note-buttons";
 
-   const doneBtn = document.createElement("button");
-doneBtn.type = "button";
-doneBtn.textContent = todo.done ? "✔" : "✓";
-doneBtn.title = todo.done ? "Mark as not done" : "Mark as done";
+    const doneBtn = document.createElement("button");
+    doneBtn.type = "button";
+    doneBtn.textContent = todo.done ? "✔" : "✓";
+    doneBtn.title = todo.done ? "Mark as not done" : "Mark as done";
 
-const editBtn = document.createElement("button");
-editBtn.type = "button";
-editBtn.textContent = "✎";
-editBtn.title = "Edit note";
+    const editBtn = document.createElement("button");
+    editBtn.type = "button";
+    editBtn.textContent = "✎";
+    editBtn.title = "Edit note";
 
-const deleteBtn = document.createElement("button");
-deleteBtn.type = "button";
-deleteBtn.textContent = "🗑";
-deleteBtn.title = "Delete note";
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.textContent = "🗑";
+    deleteBtn.title = "Delete note";
 
     doneBtn.addEventListener("click", () => {
       todos[index].done = !todos[index].done;
@@ -312,9 +402,10 @@ function setupTodo() {
   });
 }
 
-// ===== Init on page load =====
+// ===== Init =====
 
 document.addEventListener("DOMContentLoaded", () => {
+  maybeShowUserSetup();
   setupClockGreeting();
   setupLinks();
   setupTodo();

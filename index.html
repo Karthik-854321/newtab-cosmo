@@ -7,41 +7,98 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Dynamic NASA background overlay -->
   <div id="bg-overlay" class="bg-overlay"></div>
 
-<div class="main-layout">
-  <div class="left-column">
-    <div class="container">
-      <div class="badge">Stardance Project ✨</div>
-      <h1 id="clock" class="clock">00:00:00</h1>
-      <div id="date" class="date">Mon, Jan 1, 2026</div>
-      <div id="greeting" class="greeting">Good morning, Karthik</div>
-      <div id="focus" class="focus-text">
-        Connecting to NASA telemetry & Hack Club stardust...
+  <!-- Main two-column layout -->
+  <div class="main-layout">
+    <div class="left-column">
+      <div class="container">
+        <div class="badge">Stardance Project ✨</div>
+        <h1 id="clock" class="clock">00:00:00</h1>
+        <div id="date" class="date">Mon, Jan 1, 2026</div>
+        <div id="greeting" class="greeting">Good morning, traveler</div>
+        <div id="focus" class="focus-text">
+          Time to build CosmoTab and earn stardust.
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="links-section">
+        <div class="links-header">
+          <h2>Quick Access</h2>
+          <button id="add-link-button" class="icon-button" title="Add link">+</button>
+        </div>
+        <div id="links" class="links"></div>
       </div>
     </div>
   </div>
 
-  <div class="right-column">
-    <div class="links-section">
-      <div class="links-header">
-        <h2>Quick Access</h2>
-        <button id="add-link-button" class="icon-button" title="Add link">+</button>
-      </div>
-      <div id="links" class="links"></div>
+  <!-- Sticky notes section -->
+  <div class="todo">
+    <h2>Sticky Notes</h2>
+    <form id="todo-form">
+      <input id="todo-input" type="text" placeholder="Write a note..." />
+    </form>
+    <div id="todo-grid" class="todo-grid"></div>
+  </div>
+
+  <!-- User setup modal -->
+  <div id="user-setup-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Welcome to CosmoTab</h3>
+      <form id="user-setup-form">
+        <label>
+          Your name
+          <input id="user-name-input" type="text" placeholder="Your name" required />
+        </label>
+
+        <label>
+          Choose your avatar
+          <select id="user-avatar-select" required>
+            <option value="">Select one…</option>
+            <option value="dino">Pixel dinosaur</option>
+            <option value="astronaut-m">Astronaut (male)</option>
+            <option value="astronaut-f">Astronaut (female)</option>
+            <option value="rocket">Rocket ship</option>
+            <option value="ufo">UFO</option>
+          </select>
+        </label>
+
+        <div class="modal-actions">
+          <button type="submit" id="user-setup-save">Save</button>
+        </div>
+      </form>
     </div>
   </div>
-</div>
 
-<div class="todo">
-  <h2>Sticky Notes</h2>
-  <form id="todo-form">
-    <input id="todo-input" type="text" placeholder="Write a note..." />
-  </form>
-  <div id="todo-grid" class="todo-grid"></div>
-</div>
+  <!-- Animated pixel characters layer -->
+  <div class="character-layer">
+    <div id="avatar" class="avatar avatar-hidden"></div>
+  </div>
 
-<script src="script.js"></script>
+  <!-- Modal for adding/editing quick links -->
+  <div id="link-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="link-modal-title">Add Quick Link</h3>
+      <form id="link-form">
+        <label>
+          Name
+          <input id="link-name" type="text" placeholder="e.g. Stardance" required />
+        </label>
+        <label>
+          URL
+          <input id="link-url" type="url" placeholder="https://stardance.hackclub.com" required />
+        </label>
+        <div class="modal-actions">
+          <button type="button" id="link-cancel">Cancel</button>
+          <button type="submit" id="link-save">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>

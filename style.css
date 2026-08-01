@@ -1,6 +1,9 @@
 * {
   box-sizing: border-box;
 }
+
+/* Page background and layout */
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -14,13 +17,9 @@ body {
   position: relative;
 }
 
-/* Dynamic NASA background image container with smooth darkening */
 .bg-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  position: fixed;
+  inset: 0;
   background-size: cover;
   background-position: center;
   filter: brightness(0.35) blur(2px);
@@ -28,17 +27,63 @@ body {
   z-index: -1;
 }
 
+/* Optional subtle starfield */
+.bg-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(248, 250, 252, 0.3) 1px, transparent 1px),
+    radial-gradient(circle at 80% 30%, rgba(248, 250, 252, 0.25) 1px, transparent 1px),
+    radial-gradient(circle at 50% 80%, rgba(248, 250, 252, 0.2) 1px, transparent 1px);
+  background-size: 200px 200px, 260px 260px, 180px 180px;
+  animation: star-drift 40s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes star-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-80px, -40px, 0);
+  }
+}
+
+/* Two-column layout */
+
+.main-layout {
+  width: 100%;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: minmax(320px, 1.4fr) minmax(280px, 1fr);
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.left-column {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.right-column {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Glassmorphism container */
+
 .container {
-  text-align: center;
-  padding: 2.5rem 3.5rem;
+  text-align: left;
+  padding: 2.5rem 2.5rem;
   background: rgba(11, 15, 25, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 
-              0 0 40px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(99, 102, 241, 0.15);
   backdrop-filter: blur(16px);
   max-width: 650px;
-  width: 90%;
+  width: 100%;
 }
 
 .badge {
@@ -87,35 +132,14 @@ body {
   color: #9ca3af;
   font-style: italic;
   line-height: 1.4;
-  padding: 0 1rem;
-}
-.links {
-  margin-top: 1.5rem;
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
+  padding: 0 1rem 0 0;
 }
 
-.links a {
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  background: #1f2937;
-  color: #e5e7eb;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: background 0.2s, transform 0.1s;
-}
+/* Quick Access links */
 
-.links a:hover {
-  background: #374151;
-  transform: translateY(-1px);
-}
 .links-section {
-  margin-top: 1.5rem;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-top: 0.5rem;
+  max-width: 420px;
 }
 
 .links-header {
@@ -188,7 +212,7 @@ body {
   color: #f97316;
 }
 
-/* Modal styles */
+/* Modal (used for user setup and links) */
 
 .modal {
   position: fixed;
@@ -223,7 +247,8 @@ body {
   margin-bottom: 0.5rem;
 }
 
-.modal-content input {
+.modal-content input,
+.modal-content select {
   width: 100%;
   padding: 0.4rem 0.5rem;
   border-radius: 0.5rem;
@@ -234,7 +259,8 @@ body {
   outline: 1px solid #1f2937;
 }
 
-.modal-content input:focus {
+.modal-content input:focus,
+.modal-content select:focus {
   outline-color: #6366f1;
 }
 
@@ -250,20 +276,16 @@ body {
   border-radius: 0.5rem;
   padding: 0.4rem 0.8rem;
   cursor: pointer;
-}
-
-#link-cancel {
-  background: #111827;
-  color: #e5e7eb;
-}
-
-#link-save {
   background: #4f46e5;
   color: #e5e7eb;
 }
+
+/* Sticky notes */
+
 .todo {
-  margin-top: 2rem;
-  max-width: 900px;
+  margin-top: 2.5rem;
+  width: 100%;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -297,6 +319,7 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 0.75rem;
 }
+
 .sticky-note {
   background: #fef3c7;
   color: #111827;
@@ -351,42 +374,134 @@ body {
 .sticky-note-buttons button:hover {
   color: #1f2937;
 }
-.main-layout {
-  width: 100%;
-  max-width: 1200px;
-  display: grid;
-  grid-template-columns: minmax(300px, 1fr) minmax(280px, 1fr);
-  gap: 2rem;
-  align-items: flex-start;
+
+/* Pixel-art avatar layer */
+
+.character-layer {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 10;
 }
 
-.left-column {
-  display: flex;
-  justify-content: flex-start;
+.avatar {
+  width: 128px;
+  height: 128px;
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: auto 128px; /* width depends on frame count */
+  filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.8));
+  animation: avatar-float 3s ease-in-out infinite;
 }
 
-.right-column {
-  display: flex;
-  justify-content: flex-end;
+.avatar-hidden {
+  display: none;
 }
 
-.container {
-  text-align: left;
-  padding: 2.5rem 2.5rem;
-  background: rgba(11, 15, 25, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6),
-    0 0 40px rgba(99, 102, 241, 0.15);
-  backdrop-filter: blur(16px);
-  max-width: 650px;
-  width: 100%;
+/* Floating/glow animation */
+@keyframes avatar-float {
+  0% {
+    transform: translate(-50%, 0px);
+  }
+  50% {
+    transform: translate(-50%, -10px);
+  }
+  100% {
+    transform: translate(-50%, 0px);
+  }
 }
 
-.todo {
-  margin-top: 2.5rem;
-  width: 100%;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+/* Sprite animations via steps() */
+
+/* Example: dino idle (4 frames, 512x128) */
+.avatar.dino-idle {
+  background-image: url("assets/dino_idle.png");
+  animation: avatar-float 3s ease-in-out infinite, dino-idle 0.8s steps(4) infinite;
+}
+
+@keyframes dino-idle {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -512px 0;
+  }
+}
+
+/* Example: dino walk (6 frames, 768x128) */
+.avatar.dino-walk {
+  background-image: url("assets/dino_walk.png");
+  animation: avatar-float 3s ease-in-out infinite, dino-walk 0.7s steps(6) infinite;
+}
+
+@keyframes dino-walk {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -768px 0;
+  }
+}
+
+/* Astronaut male idle (4 frames) */
+.avatar.astronaut-m-idle {
+  background-image: url("assets/astronaut_m_idle.png");
+  animation: avatar-float 3s ease-in-out infinite, astro-m-idle 0.9s steps(4) infinite;
+}
+
+@keyframes astro-m-idle {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -512px 0;
+  }
+}
+
+/* Astronaut female idle (4 frames) */
+.avatar.astronaut-f-idle {
+  background-image: url("assets/astronaut_f_idle.png");
+  animation: avatar-float 3s ease-in-out infinite, astro-f-idle 0.9s steps(4) infinite;
+}
+
+@keyframes astro-f-idle {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -512px 0;
+  }
+}
+
+/* Rocket fly (6 frames) */
+.avatar.rocket-fly {
+  background-image: url("assets/rocket_fly.png");
+  animation: avatar-float 3s ease-in-out infinite, rocket-fly 0.6s steps(6) infinite;
+}
+
+@keyframes rocket-fly {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -768px 0;
+  }
+}
+
+/* UFO float (4 frames) */
+.avatar.ufo-float {
+  background-image: url("assets/ufo_float.png");
+  animation: avatar-float 3s ease-in-out infinite, ufo-float 1s steps(4) infinite;
+}
+
+@keyframes ufo-float {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -512px 0;
+  }
 }
