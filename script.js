@@ -61,10 +61,153 @@ async function fetchNasaStardustData() {
     }
   }
 }
+const LINKS_STORAGE_KEY = "cosmotab-links";
 
+function loadLinks() {
+  const raw = localStorage.getItem(LINKS_STORAGE_KEY);
+  try {
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLinks(links) {
+  localStorage.setItem(LINKS_STORAGE_KEY, JSON.stringify(links));
+}
+
+function renderLinks(links) {
+  const container = document.getElementById("links");
+  if (!container) return;
+  container.innerHTML = "";
+
+  links.forEach((link, index) => {
+    const a = document.createElement("a");
+    a.href = link.url;
+    a.target = "_blank";
+    a.className = "link-chip";
+
+    const span = document.createElement("span");
+    span.textContent = link.name;
+
+    const editBtn = document.createElement("button");
+    editBtn.type = "button";
+    editBtn.textContent = "✎";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.textContent = "✕";
+
+    editBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openLinkModal("edit", links, index);
+    });
+
+    deleteBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      links.splice(index, 1);
+      saveLinks(links);
+      renderLinks(links);
+    });
+
+    a.appendChild(span);
+    a.appendChild(editBtn);
+    a.appendChild(deleteBtn);
+    container.appendChild(a);
+  });
+}
+
+let currentLinkMode = "add";
+let currentLinkIndex = null;
+
+function openLinkModal(mode, links, index = null) {
+  currentLinkMode = mode;
+  currentLinkIndex = index;
+
+  const modal = document.getElementById("link-modal");
+  const titleEl = document.getElementById("link-modal-title");
+  const nameInput = document.getElementById("link-name");
+  const urlInput = document.getElementById("link-url");
+
+  if (!modal || !titleEl || !nameInput || !urlInput) return;
+
+  if (mode === "edit" && index != null) {
+    titleEl.textContent = "Edit Quick Link";
+    nameInput.value = links[index].name;
+    urlInput.value = links[index].url;
+  } else {
+    titleEl.textContent = "Add Quick Link";
+    nameInput.value = "";
+    urlInput.value = "";
+  }
+
+  modal.classList.remove("hidden");
+  nameInput.focus();
+}
+
+function closeLinkModal() {
+  const modal = document.getElementById("link-modal");
+  if (modal) modal.classList.add("hidden");
+}
+
+function setupLinks() {
+  let links = loadLinks();
+  if (links.length === 0) {
+    // Default useful links
+    links = [
+      { name: "Stardance", url: "https://stardance.hackclub.com" },
+      { name: "GitHub", url: "https://github.com" },
+      { name: "Hackatime", url: "https://hackatime.hackclub.com" },
+    ];
+    saveLinks(links);
+  }
+
+  renderLinks(links);
+
+  const addBtn = document.getElementById("add-link-button");
+  const modal = document.getElementById("link-modal");
+  const form = document.getElementById("link-form");
+  const cancelBtn = document.getElementById("link-cancel");
+  const nameInput = document.getElementById("link-name");
+  const urlInput = document.getElementById("link-url");
+
+  if (!addBtn || !modal || !form || !cancelBtn || !nameInput || !urlInput) return;
+
+  addBtn.addEventListener("click", () => {
+    openLinkModal("add", links);
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    closeLinkModal();
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeLinkModal();
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    const url = urlInput.value.trim();
+    if (!name || !url) return;
+
+    if (currentLinkMode === "edit" && currentLinkIndex != null) {
+      links[currentLinkIndex] = { name, url };
+    } else {
+      links.push({ name, url });
+    }
+
+    saveLinks(links);
+    renderLinks(links);
+    closeLinkModal();
+  });
+}
 // Initialize Sequence
 updateGreeting();
 fetchNasaStardustData();
 
 // Refresh clock/greetings every minute, NASA fetch once per session load
 setInterval(updateGreeting, 60000);
+setupTodo();
+setupLinks();
+updateClockAndGreeting(); // or whatever you named it

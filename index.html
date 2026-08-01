@@ -12,18 +12,83 @@
 
   <div class="container">
     <div class="badge">Stardance Project ✨</div>
-    <h1 id="clock" class="clock">00:00:00</h1>
-    <div id="date" class="date">Mon, Jan 1, 2026</div>
-    <div id="greeting" class="greeting">Good morning, Karthik</div>
-    <div id="focus" class="focus-text">Connecting to NASA telemetry & Hack Club stardust...</div>
-  </div>
-  <div class="links">
-  <a href="https://stardance.hackclub.com" target="_blank">Stardance</a>
-  <a href="https://github.com/Karthik-854321" target="_blank">GitHub</a>
-  <a href="https://hackatime.hackclub.com" target="_blank">Hackatime</a>
-</div>
-  
 
+    <h1 id="clock" class="clock">00:00:00</h1>
+
+    <div id="date" class="date">
+      Mon, Jan 1, 2026
+    </div>
+
+    <div id="greeting" class="greeting">
+      Good morning, Karthik
+    </div>
+
+    <div id="focus" class="focus-text">
+      Connecting to NASA telemetry &amp; Hack Club stardust...
+    </div>
+
+    <!-- Quick Links -->
+    <div class="links-section">
+      <div class="links-header">
+        <h2>Quick Access</h2>
+        <button
+          id="add-link-button"
+          class="icon-button"
+          title="Add link"
+          type="button"
+        >
+          +
+        </button>
+      </div>
+
+      <div id="links" class="links"></div>
+    </div>
+  </div>
+
+  <!-- Modal for Adding / Editing Links -->
+  <div id="link-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="link-modal-title">Add Quick Link</h3>
+
+      <form id="link-form">
+        <label>
+          Name
+          <input
+            id="link-name"
+            type="text"
+            placeholder="e.g. Stardance"
+            required
+          />
+        </label>
+
+        <label>
+          URL
+          <input
+            id="link-url"
+            type="url"
+            placeholder="https://stardance.hackclub.com"
+            required
+          />
+        </label>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            id="link-cancel"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            id="link-save"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
