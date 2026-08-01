@@ -90,3 +90,25 @@ body {
   line-height: 1.4;
   padding: 0 1rem;
 }
+.links {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.links a {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: #1f2937;
+  color: #e5e7eb;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.links a:hover {
+  background: #374151;
+  transform: translateY(-1px);
+}
