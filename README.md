@@ -5,7 +5,8 @@ A custom new tab page built for the Stardance “Give Your Website a Pulse” mi
 ## Features
 
 - Custom layout and styling
-- (Add more as you build)
+- todo list for personal work tracking
+- Quick links section
 
 ## How to run
 
