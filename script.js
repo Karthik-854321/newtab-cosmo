@@ -231,17 +231,20 @@ function renderTodos(todos) {
     const btns = document.createElement("div");
     btns.className = "sticky-note-buttons";
 
-    const doneBtn = document.createElement("button");
-    doneBtn.type = "button";
-    doneBtn.textContent = todo.done ? "Undo" : "Done";
+   const doneBtn = document.createElement("button");
+doneBtn.type = "button";
+doneBtn.textContent = todo.done ? "✔" : "✓";
+doneBtn.title = todo.done ? "Mark as not done" : "Mark as done";
 
-    const editBtn = document.createElement("button");
-    editBtn.type = "button";
-    editBtn.textContent = "Edit";
+const editBtn = document.createElement("button");
+editBtn.type = "button";
+editBtn.textContent = "✎";
+editBtn.title = "Edit note";
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.type = "button";
-    deleteBtn.textContent = "Delete";
+const deleteBtn = document.createElement("button");
+deleteBtn.type = "button";
+deleteBtn.textContent = "🗑";
+deleteBtn.title = "Delete note";
 
     doneBtn.addEventListener("click", () => {
       todos[index].done = !todos[index].done;
