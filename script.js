@@ -211,3 +211,118 @@ setInterval(updateGreeting, 60000);
 setupTodo();
 setupLinks();
 updateClockAndGreeting(); // or whatever you named it
+const TODO_STORAGE_KEY = "cosmotab-todos";
+
+function loadTodos() {
+  const raw = localStorage.getItem(TODO_STORAGE_KEY);
+  try {
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveTodos(todos) {
+  localStorage.setItem(TODO_STORAGE_KEY, JSON.stringify(todos));
+}
+
+function renderTodos(todos) {
+  const grid = document.getElementById("todo-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  todos.forEach((todo, index) => {
+    const card = document.createElement("div");
+    card.className = "sticky-note";
+    if (todo.done) card.classList.add("done");
+
+    const textEl = document.createElement("div");
+    textEl.className = "sticky-note-text";
+    textEl.textContent = todo.text;
+
+    const footer = document.createElement("div");
+    footer.className = "sticky-note-footer";
+
+    const timeEl = document.createElement("span");
+    timeEl.textContent = todo.createdAt || "";
+
+    const btns = document.createElement("div");
+    btns.className = "sticky-note-buttons";
+
+    const doneBtn = document.createElement("button");
+    doneBtn.type = "button";
+    doneBtn.textContent = todo.done ? "Undo" : "Done";
+
+    const editBtn = document.createElement("button");
+    editBtn.type = "button";
+    editBtn.textContent = "Edit";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.textContent = "Delete";
+
+    doneBtn.addEventListener("click", () => {
+      todos[index].done = !todos[index].done;
+      saveTodos(todos);
+      renderTodos(todos);
+    });
+
+    editBtn.addEventListener("click", () => {
+      const newText = prompt("Edit note:", todo.text);
+      if (newText != null) {
+        todos[index].text = newText.trim();
+        saveTodos(todos);
+        renderTodos(todos);
+      }
+    });
+
+    deleteBtn.addEventListener("click", () => {
+      if (confirm("Delete this note?")) {
+        todos.splice(index, 1);
+        saveTodos(todos);
+        renderTodos(todos);
+      }
+    });
+
+    btns.appendChild(doneBtn);
+    btns.appendChild(editBtn);
+    btns.appendChild(deleteBtn);
+
+    footer.appendChild(timeEl);
+    footer.appendChild(btns);
+
+    card.appendChild(textEl);
+    card.appendChild(footer);
+    grid.appendChild(card);
+  });
+}
+
+function setupTodo() {
+  let todos = loadTodos();
+  renderTodos(todos);
+
+  const form = document.getElementById("todo-form");
+  const input = document.getElementById("todo-input");
+  if (!form || !input) return;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    const now = new Date();
+    const stamp = now.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+
+    todos.push({
+      text,
+      done: false,
+      createdAt: stamp,
+    });
+    saveTodos(todos);
+    renderTodos(todos);
+    input.value = "";
+  });
+}
